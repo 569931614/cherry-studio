@@ -55,7 +55,11 @@
     "test:lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts",
     "format": "prettier --write .",
     "lint": "eslint . --ext .js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix",
-    "prepare": "husky"
+    "prepare": "husky",
+    "setup:wxauto": "node scripts/setup-wxauto.js",
+    "setup:wxauto:win": "scripts\\setup-wxauto.bat",
+    "setup:wxauto:unix": "bash scripts/setup-wxauto.sh",
+    "test:wxauto": "python python/wxauto_bridge.py --test"
   },
   "dependencies": {
     "@cherrystudio/embedjs": "^0.1.31",
@@ -157,7 +161,7 @@
     "dexie": "^4.0.8",
     "dexie-react-hooks": "^1.1.7",
     "dotenv-cli": "^7.4.2",
-    "electron": "35.4.0",
+    "electron": "^36.4.0",
     "electron-builder": "26.0.15",
     "electron-devtools-installer": "^3.2.0",
     "electron-vite": "^3.1.0",

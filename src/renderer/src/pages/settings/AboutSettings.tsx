@@ -64,7 +64,7 @@ const AboutSettings: FC = () => {
     const email = 'support@cherry-ai.com'
     const subject = `${APP_NAME} Feedback`
     const version = (await window.api.getAppInfo()).version
-    const platform = window.electron.process.platform
+    const platform = window.electron?.process?.platform || 'unknown'
     const url = `mailto:${email}?subject=${subject}&body=%0A%0AVersion: ${version} | Platform: ${platform}`
     onOpenWebsite(url)
   }

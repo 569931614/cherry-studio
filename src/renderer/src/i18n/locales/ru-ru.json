@@ -1,5 +1,121 @@
 {
   "translation": {
+    "aisales": {
+      "title": "AI Продажи",
+      "welcome": "Добро пожаловать в AI Sales Bot",
+      "subtitle": "Интеллектуальный помощник для маркетинга в WeChat",
+      "status": {
+        "friends": "Количество друзей",
+        "groups": "Количество групп",
+        "connection": "Статус подключения",
+        "user": "Текущий пользователь",
+        "online": "В сети",
+        "offline": "Не в сети",
+        "reconnect": "Переподключиться"
+      },
+      "features": {
+        "title": "Возможности",
+        "ai_sales": "Умные AI продажи",
+        "ai_sales_desc": "Автоматические ответы на сообщения для повышения эффективности продаж",
+        "bulk_send": "Массовая рассылка",
+        "bulk_send_desc": "Эффективная массовая рассылка для точного охвата клиентов",
+        "automation": "Запланированные задачи",
+        "automation_desc": "Автоматизированные SOP процессы для освобождения рук"
+      },
+      "tabs": {
+        "dashboard": "Панель управления",
+        "chat": "Чат",
+        "bulk_send": "Массовая рассылка",
+        "automation": "Автоматизация",
+        "settings": "Настройки"
+      },
+      "dashboard": {
+        "title": "Панель управления AI продажами",
+        "wechat_status": "Статус WeChat",
+        "connect_wechat": "Подключить WeChat",
+        "disconnect_wechat": "Отключить WeChat",
+        "auto_reply": "Автоответ",
+        "enable_auto_reply": "Включить автоответ",
+        "disable_auto_reply": "Отключить автоответ",
+        "listening": "Прослушивание",
+        "start_listening": "Начать прослушивание",
+        "stop_listening": "Остановить прослушивание"
+      },
+      "chat": {
+        "title": "Управление чатом",
+        "select_contact": "Выберите контакт",
+        "send_message": "Отправить сообщение",
+        "message_placeholder": "Введите содержимое сообщения...",
+        "no_contact_selected": "Пожалуйста, выберите контакт",
+        "contact_list": "Список контактов",
+        "group_list": "Список групп",
+        "search_placeholder": "Поиск контактов или групп...",
+        "message_history": "История чата",
+        "load_history": "Загрузить историю"
+      },
+      "bulk_send": {
+        "title": "Массовая рассылка",
+        "select_contacts": "Выберите контакты",
+        "message_content": "Содержимое сообщения",
+        "message_placeholder": "Введите содержимое для массовой рассылки...",
+        "send_settings": "Настройки отправки",
+        "delay_range": "Интервал отправки",
+        "delay_min": "Минимальный интервал (сек)",
+        "delay_max": "Максимальный интервал (сек)",
+        "start_send": "Начать массовую рассылку",
+        "stop_send": "Остановить массовую рассылку",
+        "send_progress": "Прогресс отправки",
+        "select_all": "Выбрать все",
+        "deselect_all": "Отменить выбор всех",
+        "selected_count": "Выбрано {{count}} контактов"
+      },
+      "automation": {
+        "title": "Задачи автоматизации",
+        "auto_accept_friends": "Автоматически принимать заявки в друзья",
+        "auto_like_moments": "Автоматически лайкать моменты",
+        "welcome_message": "Приветственное сообщение для новых друзей",
+        "scheduled_tasks": "Запланированные задачи",
+        "task_list": "Список задач",
+        "add_task": "Добавить задачу",
+        "edit_task": "Редактировать задачу",
+        "delete_task": "Удалить задачу",
+        "task_enabled": "Задача включена",
+        "task_disabled": "Задача отключена"
+      },
+      "settings": {
+        "title": "Настройки",
+        "api_config": "Конфигурация API",
+        "deepseek_api_key": "DeepSeek API ключ",
+        "moonshot_api_key": "Moonshot API ключ",
+        "test_connection": "Тест подключения",
+        "save_settings": "Сохранить настройки",
+        "agent_config": "Конфигурация агента",
+        "reply_strategy": "Стратегия ответов",
+        "private_chat": "Личный чат",
+        "group_chat": "Групповой чат",
+        "group_at_only": "Отвечать только на @ сообщения",
+        "keywords": "Триггер по ключевым словам",
+        "add_keyword": "Добавить ключевое слово"
+      },
+      "messages": {
+        "wechat_connected": "WeChat успешно подключен",
+        "wechat_disconnected": "WeChat отключен",
+        "auto_reply_enabled": "Автоответ включен",
+        "auto_reply_disabled": "Автоответ отключен",
+        "listening_started": "Прослушивание сообщений начато",
+        "listening_stopped": "Прослушивание сообщений остановлено",
+        "message_sent": "Сообщение успешно отправлено",
+        "bulk_send_completed": "Массовая рассылка завершена",
+        "settings_saved": "Настройки успешно сохранены",
+        "connection_test_success": "Тест подключения успешен",
+        "connection_test_failed": "Тест подключения не удался",
+        "please_select_contacts": "Пожалуйста, выберите контакты",
+        "please_enter_message": "Пожалуйста, введите содержимое сообщения",
+        "operation_failed": "Операция не удалась",
+        "loading": "Загрузка...",
+        "no_data": "Нет данных"
+      }
+    },
     "agents": {
       "add.button": "Добавить в ассистента",
       "add.knowledge_base": "База знаний",

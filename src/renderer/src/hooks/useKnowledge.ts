@@ -203,7 +203,7 @@ export const useKnowledge = (baseId: string) => {
     const [percent, setPercent] = useState<number>(0)
 
     useEffect(() => {
-      if (!itemId) {
+      if (!itemId || !window.electron?.ipcRenderer) {
         return
       }
 
@@ -217,7 +217,7 @@ export const useKnowledge = (baseId: string) => {
       )
 
       return () => {
-        cleanup()
+        cleanup && cleanup()
       }
     }, [itemId])
 

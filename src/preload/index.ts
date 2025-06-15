@@ -165,6 +165,33 @@ const api = {
   shell: {
     openExternal: (url: string, options?: Electron.OpenExternalOptions) => shell.openExternal(url, options)
   },
+  wxAuto: {
+    initialize: () => ipcRenderer.invoke(IpcChannel.WxAuto_Initialize),
+    getConnectionStatus: () => ipcRenderer.invoke(IpcChannel.WxAuto_GetConnectionStatus),
+    reconnect: () => ipcRenderer.invoke(IpcChannel.WxAuto_Reconnect),
+    getContacts: () => ipcRenderer.invoke(IpcChannel.WxAuto_GetContacts),
+    getGroups: () => ipcRenderer.invoke(IpcChannel.WxAuto_GetGroups),
+    getSessionList: () => ipcRenderer.invoke(IpcChannel.WxAuto_GetSessionList),
+    sendMessage: (contactName: string, message: string) =>
+      ipcRenderer.invoke(IpcChannel.WxAuto_SendMessage, contactName, message),
+    bulkSend: (contacts: string[], message: string, delayRange?: [number, number]) =>
+      ipcRenderer.invoke(IpcChannel.WxAuto_BulkSend, contacts, message, delayRange),
+    getMessageHistory: (contactName: string, forceRefresh?: boolean) =>
+      ipcRenderer.invoke(IpcChannel.WxAuto_GetMessageHistory, contactName, forceRefresh),
+    clearChatMessages: (contactName: string) => ipcRenderer.invoke(IpcChannel.WxAuto_ClearChatMessages, contactName),
+    refreshChatMessages: (contactName: string) =>
+      ipcRenderer.invoke(IpcChannel.WxAuto_RefreshChatMessages, contactName),
+    getMessagesFromDb: (contactName: string, page: number, perPage: number) =>
+      ipcRenderer.invoke(IpcChannel.WxAuto_GetMessagesFromDb, contactName, page, perPage),
+    startMonitoring: (contactName: string, autoReply?: boolean) =>
+      ipcRenderer.invoke(IpcChannel.WxAuto_StartMonitoring, contactName, autoReply),
+    stopMonitoring: (contactName: string) => ipcRenderer.invoke(IpcChannel.WxAuto_StopMonitoring, contactName),
+    getAutoReplyStatus: () => ipcRenderer.invoke(IpcChannel.WxAuto_GetAutoReplyStatus),
+    toggleAutoReply: (enabled: boolean) => ipcRenderer.invoke(IpcChannel.WxAuto_ToggleAutoReply, enabled),
+    isAvailable: () => ipcRenderer.invoke(IpcChannel.WxAuto_IsAvailable),
+    saveContactsToDb: (contacts: any[]) => ipcRenderer.invoke(IpcChannel.WxAuto_SaveContactsToDb, contacts),
+    getContactsFromDb: () => ipcRenderer.invoke(IpcChannel.WxAuto_GetContactsFromDb)
+  },
   copilot: {
     getAuthMessage: (headers?: Record<string, string>) =>
       ipcRenderer.invoke(IpcChannel.Copilot_GetAuthMessage, headers),
@@ -243,6 +270,33 @@ if (process.contextIsolated) {
       getVaults: () => ipcRenderer.invoke(IpcChannel.Obsidian_GetVaults),
       getFolders: (vaultName: string) => ipcRenderer.invoke(IpcChannel.Obsidian_GetFiles, vaultName),
       getFiles: (vaultName: string) => ipcRenderer.invoke(IpcChannel.Obsidian_GetFiles, vaultName)
+    })
+    contextBridge.exposeInMainWorld('wxAuto', {
+      initialize: () => ipcRenderer.invoke(IpcChannel.WxAuto_Initialize),
+      getConnectionStatus: () => ipcRenderer.invoke(IpcChannel.WxAuto_GetConnectionStatus),
+      reconnect: () => ipcRenderer.invoke(IpcChannel.WxAuto_Reconnect),
+      getContacts: () => ipcRenderer.invoke(IpcChannel.WxAuto_GetContacts),
+      getGroups: () => ipcRenderer.invoke(IpcChannel.WxAuto_GetGroups),
+      getSessionList: () => ipcRenderer.invoke(IpcChannel.WxAuto_GetSessionList),
+      sendMessage: (contactName: string, message: string) =>
+        ipcRenderer.invoke(IpcChannel.WxAuto_SendMessage, contactName, message),
+      bulkSend: (contacts: string[], message: string, delayRange?: [number, number]) =>
+        ipcRenderer.invoke(IpcChannel.WxAuto_BulkSend, contacts, message, delayRange),
+      getMessageHistory: (contactName: string, forceRefresh?: boolean) =>
+        ipcRenderer.invoke(IpcChannel.WxAuto_GetMessageHistory, contactName, forceRefresh),
+      clearChatMessages: (contactName: string) => ipcRenderer.invoke(IpcChannel.WxAuto_ClearChatMessages, contactName),
+      refreshChatMessages: (contactName: string) =>
+        ipcRenderer.invoke(IpcChannel.WxAuto_RefreshChatMessages, contactName),
+      getMessagesFromDb: (contactName: string, page: number, perPage: number) =>
+        ipcRenderer.invoke(IpcChannel.WxAuto_GetMessagesFromDb, contactName, page, perPage),
+      startMonitoring: (contactName: string, autoReply?: boolean) =>
+        ipcRenderer.invoke(IpcChannel.WxAuto_StartMonitoring, contactName, autoReply),
+      stopMonitoring: (contactName: string) => ipcRenderer.invoke(IpcChannel.WxAuto_StopMonitoring, contactName),
+      getAutoReplyStatus: () => ipcRenderer.invoke(IpcChannel.WxAuto_GetAutoReplyStatus),
+      toggleAutoReply: (enabled: boolean) => ipcRenderer.invoke(IpcChannel.WxAuto_ToggleAutoReply, enabled),
+      isAvailable: () => ipcRenderer.invoke(IpcChannel.WxAuto_IsAvailable),
+      saveContactsToDb: (contacts: any[]) => ipcRenderer.invoke(IpcChannel.WxAuto_SaveContactsToDb, contacts),
+      getContactsFromDb: () => ipcRenderer.invoke(IpcChannel.WxAuto_GetContactsFromDb)
     })
   } catch (error) {
     console.error(error)

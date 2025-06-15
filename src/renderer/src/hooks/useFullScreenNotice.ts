@@ -7,6 +7,8 @@ export function useFullScreenNotice() {
   const { t } = useTranslation()
 
   useEffect(() => {
+    if (!window.electron?.ipcRenderer) return
+
     const cleanup = window.electron.ipcRenderer.on(IpcChannel.FullscreenStatusChanged, (_, isFullscreen) => {
       if (isWindows && isFullscreen) {
         window.message.info({
@@ -18,7 +20,7 @@ export function useFullScreenNotice() {
     })
 
     return () => {
-      cleanup()
+      cleanup && cleanup()
     }
   }, [t])
 }

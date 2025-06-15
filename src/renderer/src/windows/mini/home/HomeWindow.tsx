@@ -244,10 +244,12 @@ const HomeWindow: FC = () => {
   })
 
   useEffect(() => {
+    if (!window.electron?.ipcRenderer) return
+
     window.electron.ipcRenderer.on(IpcChannel.ShowMiniWindow, onWindowShow)
 
     return () => {
-      window.electron.ipcRenderer.removeAllListeners(IpcChannel.ShowMiniWindow)
+      window.electron?.ipcRenderer?.removeAllListeners?.(IpcChannel.ShowMiniWindow)
     }
   }, [onWindowShow, onSendMessage, setRoute])
 

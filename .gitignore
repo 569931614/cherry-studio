@@ -36,6 +36,7 @@ node_modules
 dist
 out
 stats.html
+.swc
 
 # ENV
 .env
@@ -57,3 +58,16 @@ playwright-report
 test-results
 
 YOUR_MEMORY_FILE_PATH
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+venv/
+venv312/
+wxauto_logs/
+
+# Database files
+*.db
+*.db-shm
+*.db-wal

@@ -60,16 +60,47 @@ import { MinAppType } from '@renderer/types'
 // 加载自定义小应用
 const loadCustomMiniApp = async (): Promise<MinAppType[]> => {
   try {
+    // 检查是否在浏览器环境中，如果是则返回空数组
+    if (!window.api?.file) {
+      console.log('[Browser Mode] Skipping custom mini apps loading')
+      return []
+    }
+
     let content: string
     try {
       content = await window.api.file.read('custom-minapps.json')
+      // 检查内容是否为空或无效
+      if (!content || content.trim() === '') {
+        content = '[]'
+      }
     } catch (error) {
       // 如果文件不存在，创建一个空的 JSON 数组
       content = '[]'
-      await window.api.file.writeWithId('custom-minapps.json', content)
+      try {
+        await window.api.file.writeWithId('custom-minapps.json', content)
+      } catch (writeError) {
+        console.warn('Failed to create custom-minapps.json file:', writeError)
+      }
     }
 
-    const customApps = JSON.parse(content)
+    let customApps: any[]
+    try {
+      customApps = JSON.parse(content)
+      // 确保解析结果是数组
+      if (!Array.isArray(customApps)) {
+        console.warn('Custom mini apps data is not an array, using empty array')
+        customApps = []
+      }
+    } catch (parseError) {
+      console.warn('Failed to parse custom mini apps JSON, using empty array:', parseError)
+      customApps = []
+      // 尝试重写文件为有效的JSON
+      try {
+        await window.api.file.writeWithId('custom-minapps.json', '[]')
+      } catch (writeError) {
+        console.warn('Failed to fix custom-minapps.json file:', writeError)
+      }
+    }
     const now = new Date().toISOString()
 
     return customApps.map((app: any) => ({
@@ -474,8 +505,24 @@ const ORIGIN_DEFAULT_MIN_APPS: MinAppType[] = [
   }
 ]
 
-// 加载自定义小应用并合并到默认应用中
-let DEFAULT_MIN_APPS = [...ORIGIN_DEFAULT_MIN_APPS, ...(await loadCustomMiniApp())]
+// 初始化默认小应用（不包含自定义应用，避免在模块级别调用异步函数）
+let DEFAULT_MIN_APPS = [...ORIGIN_DEFAULT_MIN_APPS]
+
+// 异步初始化自定义小应用
+const initializeCustomMiniApps = async () => {
+  try {
+    const customApps = await loadCustomMiniApp()
+    DEFAULT_MIN_APPS = [...ORIGIN_DEFAULT_MIN_APPS, ...customApps]
+  } catch (error) {
+    console.error('Failed to initialize custom mini apps:', error)
+  }
+}
+
+// 在适当的时候调用初始化函数
+if (typeof window !== 'undefined') {
+  // 延迟初始化，确保window.api已经准备好
+  setTimeout(initializeCustomMiniApps, 1000)
+}
 
 function updateDefaultMinApps(param) {
   DEFAULT_MIN_APPS = param

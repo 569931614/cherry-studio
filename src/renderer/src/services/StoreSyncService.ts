@@ -93,19 +93,21 @@ export class StoreSyncService {
       return
     }
 
-    this.broadcastSyncRemover = window.electron.ipcRenderer.on(
-      IpcChannel.StoreSync_BroadcastSync,
-      (_, action: StoreSyncAction) => {
-        try {
-          // Dispatch to the store
-          if (window.store) {
-            window.store.dispatch(action)
+    if (window.electron?.ipcRenderer) {
+      this.broadcastSyncRemover = window.electron.ipcRenderer.on(
+        IpcChannel.StoreSync_BroadcastSync,
+        (_, action: StoreSyncAction) => {
+          try {
+            // Dispatch to the store
+            if (window.store) {
+              window.store.dispatch(action)
+            }
+          } catch (error) {
+            console.error('Error dispatching synced action:', error)
           }
-        } catch (error) {
-          console.error('Error dispatching synced action:', error)
         }
-      }
-    )
+      )
+    }
 
     window.api.storeSync.subscribe()
 

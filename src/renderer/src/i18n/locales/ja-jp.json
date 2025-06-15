@@ -1,5 +1,121 @@
 {
   "translation": {
+    "aisales": {
+      "title": "AIセールス",
+      "welcome": "AIセールスボットへようこそ",
+      "subtitle": "インテリジェントWeChatマーケティングアシスタント",
+      "status": {
+        "friends": "友達数",
+        "groups": "グループ数",
+        "connection": "接続状態",
+        "user": "現在のユーザー",
+        "online": "オンライン",
+        "offline": "オフライン",
+        "reconnect": "再接続"
+      },
+      "features": {
+        "title": "機能紹介",
+        "ai_sales": "AIスマートセールス",
+        "ai_sales_desc": "自動メッセージ返信で販売効率を向上",
+        "bulk_send": "無制限一括送信",
+        "bulk_send_desc": "効率的な一括メッセージで顧客に正確にリーチ",
+        "automation": "スケジュールタスク",
+        "automation_desc": "自動化SOPプロセスで手を解放"
+      },
+      "tabs": {
+        "dashboard": "ダッシュボード",
+        "chat": "チャット",
+        "bulk_send": "一括送信",
+        "automation": "自動化",
+        "settings": "設定"
+      },
+      "dashboard": {
+        "title": "AIセールスダッシュボード",
+        "wechat_status": "WeChat状態",
+        "connect_wechat": "WeChatに接続",
+        "disconnect_wechat": "WeChatを切断",
+        "auto_reply": "自動返信",
+        "enable_auto_reply": "自動返信を有効にする",
+        "disable_auto_reply": "自動返信を無効にする",
+        "listening": "監視中",
+        "start_listening": "監視開始",
+        "stop_listening": "監視停止"
+      },
+      "chat": {
+        "title": "チャット管理",
+        "select_contact": "連絡先を選択",
+        "send_message": "メッセージを送信",
+        "message_placeholder": "メッセージ内容を入力...",
+        "no_contact_selected": "連絡先を選択してください",
+        "contact_list": "連絡先リスト",
+        "group_list": "グループリスト",
+        "search_placeholder": "連絡先またはグループを検索...",
+        "message_history": "チャット履歴",
+        "load_history": "履歴を読み込む"
+      },
+      "bulk_send": {
+        "title": "一括送信",
+        "select_contacts": "連絡先を選択",
+        "message_content": "メッセージ内容",
+        "message_placeholder": "一括送信するメッセージ内容を入力...",
+        "send_settings": "送信設定",
+        "delay_range": "送信間隔",
+        "delay_min": "最小間隔（秒）",
+        "delay_max": "最大間隔（秒）",
+        "start_send": "一括送信開始",
+        "stop_send": "一括送信停止",
+        "send_progress": "送信進捗",
+        "select_all": "すべて選択",
+        "deselect_all": "すべて選択解除",
+        "selected_count": "{{count}}件の連絡先が選択されています"
+      },
+      "automation": {
+        "title": "自動化タスク",
+        "auto_accept_friends": "友達申請を自動承認",
+        "auto_like_moments": "モーメントを自動いいね",
+        "welcome_message": "新しい友達への歓迎メッセージ",
+        "scheduled_tasks": "スケジュールタスク",
+        "task_list": "タスクリスト",
+        "add_task": "タスクを追加",
+        "edit_task": "タスクを編集",
+        "delete_task": "タスクを削除",
+        "task_enabled": "タスクが有効",
+        "task_disabled": "タスクが無効"
+      },
+      "settings": {
+        "title": "設定",
+        "api_config": "API設定",
+        "deepseek_api_key": "DeepSeek APIキー",
+        "moonshot_api_key": "Moonshot APIキー",
+        "test_connection": "接続テスト",
+        "save_settings": "設定を保存",
+        "agent_config": "エージェント設定",
+        "reply_strategy": "返信戦略",
+        "private_chat": "プライベートチャット",
+        "group_chat": "グループチャット",
+        "group_at_only": "@メッセージのみ返信",
+        "keywords": "キーワードトリガー",
+        "add_keyword": "キーワードを追加"
+      },
+      "messages": {
+        "wechat_connected": "WeChat接続成功",
+        "wechat_disconnected": "WeChat接続切断",
+        "auto_reply_enabled": "自動返信が有効になりました",
+        "auto_reply_disabled": "自動返信が無効になりました",
+        "listening_started": "メッセージ監視を開始",
+        "listening_stopped": "メッセージ監視を停止",
+        "message_sent": "メッセージ送信成功",
+        "bulk_send_completed": "一括送信完了",
+        "settings_saved": "設定保存成功",
+        "connection_test_success": "接続テスト成功",
+        "connection_test_failed": "接続テスト失敗",
+        "please_select_contacts": "連絡先を選択してください",
+        "please_enter_message": "メッセージ内容を入力してください",
+        "operation_failed": "操作失敗",
+        "loading": "読み込み中...",
+        "no_data": "データがありません"
+      }
+    },
     "agents": {
       "add.button": "アシスタントに追加",
       "add.knowledge_base": "ナレッジベース",

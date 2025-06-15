@@ -1,6 +1,6 @@
 import { useSettings } from '@renderer/hooks/useSettings'
 import { LanguageVarious } from '@renderer/types'
-import { ConfigProvider, theme } from 'antd'
+import { ConfigProvider, theme, App } from 'antd'
 import elGR from 'antd/locale/el_GR'
 import enUS from 'antd/locale/en_US'
 import esES from 'antd/locale/es_ES'
@@ -59,7 +59,9 @@ const AntdProvider: FC<PropsWithChildren> = ({ children }) => {
           fontFamily: 'var(--font-family)'
         }
       }}>
-      {children}
+      <App style={{ display: 'contents' }}>
+        {children}
+      </App>
     </ConfigProvider>
   )
 }

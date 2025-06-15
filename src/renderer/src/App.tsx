@@ -14,6 +14,7 @@ import StyleSheetManager from './context/StyleSheetManager'
 import { ThemeProvider } from './context/ThemeProvider'
 import NavigationHandler from './handler/NavigationHandler'
 import AgentsPage from './pages/agents/AgentsPage'
+import AISalesPage from './pages/AISalesPage'
 import AppsPage from './pages/apps/AppsPage'
 import FilesPage from './pages/files/FilesPage'
 import HomePage from './pages/home/HomePage'
@@ -43,6 +44,7 @@ function App(): React.ReactElement {
                         <Route path="/files" element={<FilesPage />} />
                         <Route path="/knowledge" element={<KnowledgePage />} />
                         <Route path="/apps" element={<AppsPage />} />
+                        <Route path="/aisales" element={<AISalesPage />} />
                         <Route path="/settings/*" element={<SettingsPage />} />
                       </Routes>
                     </HashRouter>

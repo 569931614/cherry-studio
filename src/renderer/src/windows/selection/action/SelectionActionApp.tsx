@@ -38,7 +38,7 @@ const SelectionActionApp: FC = () => {
       window.api.selection.pinActionWindow(true)
     }
 
-    const actionListenRemover = window.electron?.ipcRenderer.on(
+    const actionListenRemover = window.electron?.ipcRenderer?.on(
       IpcChannel.Selection_UpdateActionData,
       (_, actionItem: ActionItem) => {
         setAction(actionItem)
@@ -50,7 +50,7 @@ const SelectionActionApp: FC = () => {
     window.addEventListener('blur', handleWindowBlur)
 
     return () => {
-      actionListenRemover()
+      actionListenRemover && actionListenRemover()
       window.removeEventListener('focus', handleWindowFocus)
       window.removeEventListener('blur', handleWindowBlur)
     }

@@ -197,5 +197,26 @@ export enum IpcChannel {
   Selection_ActionWindowMinimize = 'selection:action-window-minimize',
   Selection_ActionWindowPin = 'selection:action-window-pin',
   Selection_ProcessAction = 'selection:process-action',
-  Selection_UpdateActionData = 'selection:update-action-data'
+  Selection_UpdateActionData = 'selection:update-action-data',
+
+  // WxAuto - WeChat automation
+  WxAuto_Initialize = 'wxauto:initialize',
+  WxAuto_GetConnectionStatus = 'wxauto:get-connection-status',
+  WxAuto_Reconnect = 'wxauto:reconnect',
+  WxAuto_GetContacts = 'wxauto:get-contacts',
+  WxAuto_GetGroups = 'wxauto:get-groups',
+  WxAuto_GetSessionList = 'wxauto:get-session-list',
+  WxAuto_SendMessage = 'wxauto:send-message',
+  WxAuto_BulkSend = 'wxauto:bulk-send',
+  WxAuto_GetMessageHistory = 'wxauto:get-message-history',
+  WxAuto_ClearChatMessages = 'wxauto:clear-chat-messages',
+  WxAuto_RefreshChatMessages = 'wxauto:refresh-chat-messages',
+  WxAuto_GetMessagesFromDb = 'wxauto:get-messages-from-db',
+  WxAuto_StartMonitoring = 'wxauto:start-monitoring',
+  WxAuto_StopMonitoring = 'wxauto:stop-monitoring',
+  WxAuto_GetAutoReplyStatus = 'wxauto:get-auto-reply-status',
+  WxAuto_ToggleAutoReply = 'wxauto:toggle-auto-reply',
+  WxAuto_IsAvailable = 'wxauto:is-available',
+  WxAuto_SaveContactsToDb = 'wxauto:save-contacts-to-db',
+  WxAuto_GetContactsFromDb = 'wxauto:get-contacts-from-db'
 }

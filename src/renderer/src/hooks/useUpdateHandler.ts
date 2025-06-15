@@ -13,7 +13,7 @@ export default function useUpdateHandler() {
   const notificationService = NotificationService.getInstance()
 
   useEffect(() => {
-    if (!window.electron) return
+    if (!window.electron?.ipcRenderer) return
 
     const ipcRenderer = window.electron.ipcRenderer
 
@@ -84,6 +84,6 @@ export default function useUpdateHandler() {
         }
       })
     ]
-    return () => removers.forEach((remover) => remover())
+    return () => removers.forEach((remover) => remover && remover())
   }, [dispatch, notificationService, t])
 }

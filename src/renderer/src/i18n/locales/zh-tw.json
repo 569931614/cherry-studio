@@ -1,5 +1,121 @@
 {
   "translation": {
+    "aisales": {
+      "title": "AI銷冠",
+      "welcome": "歡迎使用AI銷冠機器人",
+      "subtitle": "智能微信營銷助手",
+      "status": {
+        "friends": "好友數量",
+        "groups": "群聊數量",
+        "connection": "連接狀態",
+        "user": "當前用戶",
+        "online": "在線",
+        "offline": "離線",
+        "reconnect": "重新連接"
+      },
+      "features": {
+        "title": "功能介紹",
+        "ai_sales": "AI智能銷售",
+        "ai_sales_desc": "自動化回復消息，提升銷售效率",
+        "bulk_send": "無限群發",
+        "bulk_send_desc": "高效率群發消息，精準觸達客戶",
+        "automation": "定時任務",
+        "automation_desc": "自動化SOP流程，解放雙手"
+      },
+      "tabs": {
+        "dashboard": "儀表板",
+        "chat": "聊天",
+        "bulk_send": "群發",
+        "automation": "自動化",
+        "settings": "設置"
+      },
+      "dashboard": {
+        "title": "AI銷冠儀表板",
+        "wechat_status": "微信狀態",
+        "connect_wechat": "連接微信",
+        "disconnect_wechat": "斷開微信",
+        "auto_reply": "自動回復",
+        "enable_auto_reply": "開啟自動回復",
+        "disable_auto_reply": "關閉自動回復",
+        "listening": "監聽中",
+        "start_listening": "開始監聽",
+        "stop_listening": "停止監聽"
+      },
+      "chat": {
+        "title": "聊天管理",
+        "select_contact": "選擇聯繫人",
+        "send_message": "發送消息",
+        "message_placeholder": "輸入消息內容...",
+        "no_contact_selected": "請選擇一個聯繫人",
+        "contact_list": "聯繫人列表",
+        "group_list": "群組列表",
+        "search_placeholder": "搜索聯繫人或群組...",
+        "message_history": "聊天記錄",
+        "load_history": "加載歷史記錄"
+      },
+      "bulk_send": {
+        "title": "批量群發",
+        "select_contacts": "選擇聯繫人",
+        "message_content": "消息內容",
+        "message_placeholder": "輸入要群發的消息內容...",
+        "send_settings": "發送設置",
+        "delay_range": "發送間隔",
+        "delay_min": "最小間隔(秒)",
+        "delay_max": "最大間隔(秒)",
+        "start_send": "開始群發",
+        "stop_send": "停止群發",
+        "send_progress": "發送進度",
+        "select_all": "全選",
+        "deselect_all": "取消全選",
+        "selected_count": "已選擇 {{count}} 個聯繫人"
+      },
+      "automation": {
+        "title": "自動化任務",
+        "auto_accept_friends": "自動通過好友申請",
+        "auto_like_moments": "自動點讚朋友圈",
+        "welcome_message": "新好友歡迎消息",
+        "scheduled_tasks": "定時任務",
+        "task_list": "任務列表",
+        "add_task": "添加任務",
+        "edit_task": "編輯任務",
+        "delete_task": "刪除任務",
+        "task_enabled": "任務已啟用",
+        "task_disabled": "任務已禁用"
+      },
+      "settings": {
+        "title": "設置",
+        "api_config": "API配置",
+        "deepseek_api_key": "DeepSeek API密鑰",
+        "moonshot_api_key": "Moonshot API密鑰",
+        "test_connection": "測試連接",
+        "save_settings": "保存設置",
+        "agent_config": "智能體配置",
+        "reply_strategy": "回復策略",
+        "private_chat": "私聊",
+        "group_chat": "群聊",
+        "group_at_only": "僅回復@消息",
+        "keywords": "關鍵詞觸發",
+        "add_keyword": "添加關鍵詞"
+      },
+      "messages": {
+        "wechat_connected": "微信連接成功",
+        "wechat_disconnected": "微信連接斷開",
+        "auto_reply_enabled": "自動回復已開啟",
+        "auto_reply_disabled": "自動回復已關閉",
+        "listening_started": "開始監聽消息",
+        "listening_stopped": "停止監聽消息",
+        "message_sent": "消息發送成功",
+        "bulk_send_completed": "群發完成",
+        "settings_saved": "設置保存成功",
+        "connection_test_success": "連接測試成功",
+        "connection_test_failed": "連接測試失敗",
+        "please_select_contacts": "請選擇聯繫人",
+        "please_enter_message": "請輸入消息內容",
+        "operation_failed": "操作失敗",
+        "loading": "加載中...",
+        "no_data": "暫無數據"
+      }
+    },
     "agents": {
       "add.button": "新增到助手",
       "add.knowledge_base": "知識庫",

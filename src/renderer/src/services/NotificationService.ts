@@ -37,12 +37,14 @@ export class NotificationService {
    */
   private setupNotificationClickHandler(): void {
     // Register an event listener for notification clicks
-    window.electron.ipcRenderer.on('notification-click', (_event, notification: Notification) => {
-      // 根据通知类型处理点击事件
-      if (notification.type === 'action') {
-        notification.onClick?.()
-      }
-    })
+    if (window.electron?.ipcRenderer) {
+      window.electron.ipcRenderer.on('notification-click', (_event, notification: Notification) => {
+        // 根据通知类型处理点击事件
+        if (notification.type === 'action') {
+          notification.onClick?.()
+        }
+      })
+    }
   }
 
   /**

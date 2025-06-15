@@ -30,6 +30,7 @@ import storeSyncService from './services/StoreSyncService'
 import { themeService } from './services/ThemeService'
 import { setOpenLinkExternal } from './services/WebviewService'
 import { windowService } from './services/WindowService'
+import { wxAutoService } from './services/WxAutoService'
 import { calculateDirectorySize, getResourcePath } from './utils'
 import { decrypt, encrypt } from './utils/aes'
 import { getCacheDir, getConfigDir, getFilesDir } from './utils/file'
@@ -351,6 +352,37 @@ export function registerIpc(mainWindow: BrowserWindow, app: Electron.App) {
 
   // selection assistant
   SelectionService.registerIpcHandler()
+
+  // WxAuto - WeChat automation
+  ipcMain.handle(IpcChannel.WxAuto_Initialize, () => wxAutoService.initialize())
+  ipcMain.handle(IpcChannel.WxAuto_GetConnectionStatus, () => wxAutoService.getConnectionStatus())
+  ipcMain.handle(IpcChannel.WxAuto_Reconnect, () => wxAutoService.reconnect())
+  ipcMain.handle(IpcChannel.WxAuto_GetContacts, () => wxAutoService.getContacts())
+  ipcMain.handle(IpcChannel.WxAuto_GetGroups, () => wxAutoService.getGroups())
+  ipcMain.handle(IpcChannel.WxAuto_GetSessionList, () => wxAutoService.getSessionList())
+  ipcMain.handle(IpcChannel.WxAuto_SendMessage, (_, contactName: string, message: string) =>
+    wxAutoService.sendMessage(contactName, message))
+  ipcMain.handle(IpcChannel.WxAuto_BulkSend, (_, contacts: string[], message: string, delayRange?: [number, number]) =>
+    wxAutoService.bulkSend(contacts, message, delayRange))
+  ipcMain.handle(IpcChannel.WxAuto_GetMessageHistory, (_, contactName: string, forceRefresh?: boolean) =>
+    wxAutoService.getMessageHistory(contactName, forceRefresh))
+  ipcMain.handle(IpcChannel.WxAuto_ClearChatMessages, (_, contactName: string) =>
+    wxAutoService.clearChatMessages(contactName))
+  ipcMain.handle(IpcChannel.WxAuto_RefreshChatMessages, (_, contactName: string) =>
+    wxAutoService.refreshChatMessages(contactName))
+  ipcMain.handle(IpcChannel.WxAuto_GetMessagesFromDb, (_, contactName: string, page: number, perPage: number) =>
+    wxAutoService.getMessagesFromDb(contactName, page, perPage))
+  ipcMain.handle(IpcChannel.WxAuto_StartMonitoring, (_, contactName: string, autoReply: boolean = false) =>
+    wxAutoService.startMonitoring(contactName, autoReply))
+  ipcMain.handle(IpcChannel.WxAuto_StopMonitoring, (_, contactName: string) =>
+    wxAutoService.stopMonitoring(contactName))
+  ipcMain.handle(IpcChannel.WxAuto_GetAutoReplyStatus, () => wxAutoService.getAutoReplyStatus())
+  ipcMain.handle(IpcChannel.WxAuto_ToggleAutoReply, (_, enabled: boolean) =>
+    wxAutoService.toggleAutoReply(enabled))
+  ipcMain.handle(IpcChannel.WxAuto_IsAvailable, () => wxAutoService.isAvailable())
+  ipcMain.handle(IpcChannel.WxAuto_SaveContactsToDb, (_, contacts: ContactInfo[]) =>
+    wxAutoService.saveContactsToDb(contacts))
+  ipcMain.handle(IpcChannel.WxAuto_GetContactsFromDb, () => wxAutoService.getContactsFromDb())
 
   ipcMain.handle(IpcChannel.App_QuoteToMain, (_, text: string) => windowService.quoteToMainWindow(text))
 }
