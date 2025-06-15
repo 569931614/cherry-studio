@@ -1,21 +1,24 @@
-import react from '@vitejs/plugin-react-swc'
+import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 import { resolve } from 'path'
 
 export default defineConfig({
   plugins: [
     react({
-      plugins: [
-        [
-          '@swc/plugin-styled-components',
-          {
-            displayName: true,
-            fileName: false,
-            pure: true,
-            ssr: false
-          }
+      // 使用 Babel 替代 SWC 以解决兼容性问题
+      babel: {
+        plugins: [
+          [
+            'babel-plugin-styled-components',
+            {
+              displayName: true,
+              fileName: false,
+              pure: true,
+              ssr: false
+            }
+          ]
         ]
-      ]
+      }
     })
   ],
   root: 'src/renderer',

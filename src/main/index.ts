@@ -111,9 +111,29 @@ if (!app.requestSingleInstanceLock()) {
     await setupAppImageDeepLink()
 
     if (isDev) {
-      installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS])
+      // 抑制扩展权限警告
+      const originalConsoleWarn = console.warn
+      console.warn = (...args) => {
+        const message = args.join(' ')
+        if (message.includes('ExtensionLoadWarning') ||
+            message.includes('Permission') ||
+            message.includes('unknown')) {
+          return // 忽略扩展权限警告
+        }
+        originalConsoleWarn.apply(console, args)
+      }
+
+      installExtension([REDUX_DEVTOOLS, REACT_DEVELOPER_TOOLS], {
+        loadExtensionOptions: {
+          allowFileAccess: true
+        }
+      })
         .then((name) => console.log(`Added Extension:  ${name}`))
         .catch((err) => console.log('An error occurred: ', err))
+        .finally(() => {
+          // 恢复原始的 console.warn
+          console.warn = originalConsoleWarn
+        })
     }
 
     //start selection assistant service
