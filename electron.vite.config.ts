@@ -1,4 +1,4 @@
-import react from '@vitejs/plugin-react-swc'
+import react from '@vitejs/plugin-react'
 import { defineConfig, externalizeDepsPlugin } from 'electron-vite'
 import { resolve } from 'path'
 import { visualizer } from 'rollup-plugin-visualizer'
@@ -47,17 +47,20 @@ export default defineConfig({
   renderer: {
     plugins: [
       react({
-        plugins: [
-          [
-            '@swc/plugin-styled-components',
-            {
-              displayName: true, // 开发环境下启用组件名称
-              fileName: false, // 不在类名中包含文件名
-              pure: true, // 优化性能
-              ssr: false // 不需要服务端渲染
-            }
+        // 使用 Babel 替代 SWC 以解决兼容性问题
+        babel: {
+          plugins: [
+            [
+              'babel-plugin-styled-components',
+              {
+                displayName: true,
+                fileName: false,
+                pure: true,
+                ssr: false
+              }
+            ]
           ]
-        ]
+        }
       }),
       ...visualizerPlugin('renderer')
     ],
@@ -72,9 +75,6 @@ export default defineConfig({
     },
     worker: {
       format: 'es'
-    },
-    server: {
-      port: 5174
     },
     build: {
       rollupOptions: {
