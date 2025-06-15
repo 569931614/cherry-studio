@@ -167,10 +167,35 @@ class WxAutoBridge:
                     wxid TEXT NOT NULL,
                     name TEXT NOT NULL,
                     type TEXT NOT NULL,
+                    remark TEXT,
+                    avatar TEXT,
+                    source TEXT,
                     created_at TEXT NOT NULL,
                     updated_at TEXT NOT NULL
                 )
                 ''')
+                
+            # 检查contacts表结构，确保remark、avatar、source字段存在
+            cursor.execute("PRAGMA table_info(contacts)")
+            contacts_columns = [column[1] for column in cursor.fetchall()]
+            
+            # 如果remark列不存在，添加它
+            if "remark" not in contacts_columns:
+                logger.info("正在添加remark字段到contacts表...")
+                cursor.execute("ALTER TABLE contacts ADD COLUMN remark TEXT DEFAULT ''")
+                logger.info("✅ 成功添加remark字段")
+                
+            # 如果avatar列不存在，添加它
+            if "avatar" not in contacts_columns:
+                logger.info("正在添加avatar字段到contacts表...")
+                cursor.execute("ALTER TABLE contacts ADD COLUMN avatar TEXT DEFAULT ''")
+                logger.info("✅ 成功添加avatar字段")
+                
+            # 如果source列不存在，添加它
+            if "source" not in contacts_columns:
+                logger.info("正在添加source字段到contacts表...")
+                cursor.execute("ALTER TABLE contacts ADD COLUMN source TEXT DEFAULT 'wxautox'")
+                logger.info("✅ 成功添加source字段")
 
             # 创建messages表
             cursor.execute('''
@@ -186,9 +211,27 @@ class WxAutoBridge:
                     attr TEXT,
                     extra_data TEXT,
                     created_at TEXT,
-                    hash TEXT
+                    hash TEXT,
+                    original_time TEXT,
+                    formatted_time TEXT
                 )
                 ''')
+                
+            # 检查messages表结构，确保original_time和formatted_time字段存在
+            cursor.execute("PRAGMA table_info(messages)")
+            messages_columns = [column[1] for column in cursor.fetchall()]
+            
+            # 如果original_time列不存在，添加它
+            if "original_time" not in messages_columns:
+                logger.info("正在添加original_time字段到messages表...")
+                cursor.execute("ALTER TABLE messages ADD COLUMN original_time TEXT")
+                logger.info("✅ 成功添加original_time字段")
+                
+            # 如果formatted_time列不存在，添加它
+            if "formatted_time" not in messages_columns:
+                logger.info("正在添加formatted_time字段到messages表...")
+                cursor.execute("ALTER TABLE messages ADD COLUMN formatted_time TEXT")
+                logger.info("✅ 成功添加formatted_time字段")
 
             # 创建sessions表，增加is_monitoring字段
             cursor.execute('''
@@ -202,9 +245,20 @@ class WxAutoBridge:
                     updated_at INTEGER,
                     chat_type TEXT,
                     is_monitoring INTEGER DEFAULT 0,
+                    has_more_messages INTEGER DEFAULT 1,
                     PRIMARY KEY (session_id, wxid)
                 )
                 ''')
+                
+            # 检查sessions表结构，确保has_more_messages字段存在
+            cursor.execute("PRAGMA table_info(sessions)")
+            sessions_columns = [column[1] for column in cursor.fetchall()]
+            
+            # 如果has_more_messages列不存在，添加它
+            if "has_more_messages" not in sessions_columns:
+                logger.info("正在添加has_more_messages字段到sessions表...")
+                cursor.execute("ALTER TABLE sessions ADD COLUMN has_more_messages INTEGER DEFAULT 1")
+                logger.info("✅ 成功添加has_more_messages字段")
 
             # 创建ai_sales_config表
             cursor.execute('''
@@ -217,55 +271,28 @@ class WxAutoBridge:
                     temperature REAL,
                     max_tokens INTEGER,
                     system_prompt TEXT,
-                    auto_reply_prompt TEXT,
-                    reply_suggest_prompt TEXT,
-                    auto_reply_enabled INTEGER,
-                    created_at INTEGER NOT NULL,
-                    updated_at INTEGER NOT NULL
+                    created_at TEXT,
+                    updated_at TEXT
                 )
-            ''')
-            
+                ''')
+
             # 创建reply_suggestions表
             cursor.execute('''
                 CREATE TABLE IF NOT EXISTS reply_suggestions (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     session_id TEXT NOT NULL,
-                    wxid TEXT NOT NULL,
-                    content TEXT NOT NULL,
                     message_id INTEGER NOT NULL,
-                    timestamp INTEGER NOT NULL,
-                    created_at TEXT,
+                    content TEXT NOT NULL,
                     used INTEGER DEFAULT 0,
-                    chat_name TEXT NOT NULL,
-                    FOREIGN KEY (message_id) REFERENCES messages (id)
+                    created_at TEXT NOT NULL
                 )
-            ''')
-            
-            # 检查reply_suggestions表结构
-            cursor.execute("PRAGMA table_info(reply_suggestions)")
-            suggestion_columns = [column[1] for column in cursor.fetchall()]
-                
-            # 检查必要的字段是否存在
-            required_columns = ["session_id", "wxid", "content", "message_id", "timestamp", "created_at", "used", "chat_name"]
-            for column in required_columns:
-                if column not in suggestion_columns:
-                    logger.info(f"正在添加{column}字段到reply_suggestions表...")
-                    column_type = "INTEGER" if column in ["message_id", "timestamp", "used"] else "TEXT"
-                    # 对于chat_name，设置默认值以满足NOT NULL约束
-                    if column == "chat_name":
-                        cursor.execute(f"ALTER TABLE reply_suggestions ADD COLUMN {column} {column_type} DEFAULT ''")
-                        # 更新现有记录
-                        cursor.execute("UPDATE reply_suggestions SET chat_name = substr(session_id, 14) WHERE chat_name = ''")
-                    else:
-                        cursor.execute(f"ALTER TABLE reply_suggestions ADD COLUMN {column} {column_type}")
-                    logger.info(f"✅ 成功添加{column}字段")
-            
+                ''')
+
             conn.commit()
             conn.close()
-            logger.info("✅ 数据库初始化成功")
-        except Exception as e:
-            logger.error(f"❌ 数据库初始化失败: {e}")
-            logger.error(traceback.format_exc())
+        except sqlite3.Error as e:
+            logger.error(f"数据库初始化错误: {e}")
+            # 继续执行，不要因为数据库错误而终止程序
 
     def set_current_wxid(self, wxid: str):
         """设置当前用户的wxid"""
@@ -1189,32 +1216,48 @@ class WxAutoBridge:
             if not contacts:
                 return {"success": False, "message": "没有联系人需要保存"}
 
-            current_time = int(time.time())
+            # 使用文本格式的时间戳，确保与数据库TEXT类型兼容
+            current_time = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             current_wxid = self.get_current_wxid()
             saved_count = 0
 
+            # 创建新的数据库连接
             with sqlite3.connect(DB_PATH) as conn:
                 cursor = conn.cursor()
 
                 for contact in contacts:
                     try:
-                        contact_id = contact.get("id", "")
                         name = contact.get("name", "")
-                        contact_type = contact.get("type", "friend")
-                        wxid = contact.get("wxid", "")
-                        remark = contact.get("remark", "")
-                        avatar = contact.get("avatar", "")
-                        source = contact.get("source", "wxautox")
-
-                        if not contact_id or not name:
+                        if not name:
                             continue
+                            
+                        contact_type = contact.get("type", "friend")
+                        # 对于NOT NULL字段确保有默认值
+                        remark = contact.get("remark") or "暂无备注"
+                        avatar = contact.get("avatar") or ""
+                        source = contact.get("source") or "wxautox"
 
-                        # 使用INSERT OR REPLACE来处理重复联系人
-                        cursor.execute('''
-                        INSERT OR REPLACE INTO contacts
-                        (id, wxid, name, type, remark, avatar, source, created_at, updated_at)
-                        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-                        ''', (contact_id, current_wxid, name, contact_type, remark, avatar, source, current_time, current_time))
+                        # 查询是否已存在该联系人
+                        cursor.execute(
+                            "SELECT id FROM contacts WHERE wxid = ? AND name = ?",
+                            (current_wxid, name)
+                        )
+                        row = cursor.fetchone()
+                        
+                        if row:
+                            # 已存在，更新
+                            cursor.execute('''
+                            UPDATE contacts SET
+                                type = ?, remark = ?, avatar = ?, source = ?, updated_at = ?
+                            WHERE wxid = ? AND name = ?
+                            ''', (contact_type, remark, avatar, source, current_time, current_wxid, name))
+                        else:
+                            # 不存在，插入新记录
+                            cursor.execute('''
+                            INSERT INTO contacts
+                            (wxid, name, type, remark, avatar, source, created_at, updated_at)
+                            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+                            ''', (current_wxid, name, contact_type, remark, avatar, source, current_time, current_time))
 
                         saved_count += 1
 
@@ -1256,15 +1299,17 @@ class WxAutoBridge:
 
                                 if name and name != "订阅号":
                                     contact_type = "group" if chat_type == "group" else "friend"
+                                    # 格式化时间为字符串，以匹配数据库TEXT字段
+                                    current_time_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                                     contact_data = {
                                         "id": wxid or name,
                                         "name": name,
                                         "type": contact_type,
-                                        "remark": "",
-                                        "avatar": "",
+                                        "remark": "暂无备注", # 确保NOT NULL字段有值
+                                        "avatar": "", # 空字符串满足NOT NULL约束 
                                         "source": "wxautox_fresh",
-                                        "created_at": int(time.time()),
-                                        "updated_at": int(time.time()),
+                                        "created_at": current_time_str,
+                                        "updated_at": current_time_str,
                                         "is_monitoring": False  # 默认为未监听状态
                                     }
                                     wxautox_contacts.append(contact_data)
@@ -1275,8 +1320,18 @@ class WxAutoBridge:
             except Exception as e:
                 logger.warning(f"获取wxautox联系人失败: {e}")
 
+            # 如果获取到wxautox数据，先保存到数据库
+            if wxautox_contacts:
+                logger.info(f"从wxautox获取到 {len(wxautox_contacts)} 个联系人，准备保存到数据库")
+                save_result = self.save_contacts_to_db(wxautox_contacts)
+                if save_result.get("success"):
+                    logger.info(f"wxautox联系人保存成功: {save_result.get('message')}")
+                else:
+                    logger.error(f"wxautox联系人保存失败: {save_result.get('message')}")
+
             # 2. 从数据库获取联系人数据（关联sessions表获取监听状态）
             current_wxid = self.get_current_wxid()
+            logger.info(f"使用当前用户wxid: {current_wxid}")
             db_contacts = []
             with sqlite3.connect(DB_PATH) as conn:
                 cursor = conn.cursor()
@@ -1291,7 +1346,8 @@ class WxAutoBridge:
                     ORDER BY c.updated_at DESC
                     ''', (current_wxid,))
                     has_is_monitoring = True
-                except Exception:
+                except Exception as e:
+                    logger.error(f"关联查询失败: {e}")
                     # 关联查询失败时回退到基本查询
                     cursor.execute('''
                     SELECT id, name, type, remark, avatar, source, created_at, updated_at
@@ -1321,146 +1377,130 @@ class WxAutoBridge:
                         contact["is_monitoring"] = False
                         
                     db_contacts.append(contact)
+            
+            logger.info(f"从数据库读取了 {len(db_contacts)} 个联系人")
 
-            if wxautox_contacts:
-                # 有wxautox数据：保存到数据库并与数据库数据合并
-                # 保存新数据到数据库
-                self.save_contacts_to_db(wxautox_contacts)
-
-                # 重新从数据库获取最新数据（包括刚保存的）
-                updated_db_contacts = []
-                try:
-                    with sqlite3.connect(DB_PATH) as conn:
-                        cursor = conn.cursor()
-                        try:
-                            # 尝试关联查询获取监听状态
-                            cursor.execute('''
-                            SELECT c.id, c.name, c.type, c.remark, c.avatar, c.source, c.created_at, c.updated_at,
-                                   CASE WHEN s.is_monitoring IS NULL THEN 0 ELSE s.is_monitoring END as is_monitoring
-                            FROM contacts c
-                            LEFT JOIN sessions s ON s.session_id = ('private_self_' || c.name) AND s.wxid = c.wxid
-                            WHERE c.wxid = ?
-                            ORDER BY c.updated_at DESC
-                            ''', (current_wxid,))
-                            has_is_monitoring = True
-                        except Exception:
-                            # 关联查询失败时回退到基本查询
-                            cursor.execute('''
-                            SELECT id, name, type, remark, avatar, source, created_at, updated_at
-                            FROM contacts
-                            WHERE wxid = ?
-                            ORDER BY updated_at DESC
-                            ''', (current_wxid,))
-                            has_is_monitoring = False
-
-                        rows = cursor.fetchall()
-                        for row in rows:
-                            contact = {
-                                "id": row[0],
-                                "name": row[1],
-                                "type": row[2],
-                                "remark": row[3] or "",
-                                "avatar": row[4] or "",
-                                "source": row[5] or "database",
-                                "created_at": row[6],
-                                "updated_at": row[7]
-                            }
-                            
-                            # 添加监听状态字段
-                            if has_is_monitoring and len(row) > 8:
-                                contact["is_monitoring"] = bool(row[8])
-                            else:
-                                contact["is_monitoring"] = False
-                                
-                            updated_db_contacts.append(contact)
-                except Exception as e:
-                    logger.error(f"重新获取联系人失败: {e}")
-                    updated_db_contacts = db_contacts  # 使用原来的数据
-
-                # 按wxautox顺序排序，确保新数据在前面
-                final_contacts = self._sort_contacts_by_wxautox_order(updated_db_contacts, wxautox_order)
-
-                # 统计数据
-                fresh_count = len([c for c in final_contacts if c.get("source") == "wxautox_fresh"])
-                old_count = len(final_contacts) - fresh_count
-
-                return {
-                    "success": True,
-                    "data": {
-                        "contacts": final_contacts,
-                        "total": len(final_contacts),
-                        "has_new_data": True,
-                        "wxautox_count": fresh_count,
-                        "db_count": old_count,
-                        "refresh_mode": "smart_merge"
-                    }
-                }
-            else:
-                # 没有wxautox数据：使用数据库数据
-                final_contacts = self._sort_contacts_by_wxautox_order(db_contacts, [])
-                return {
-                    "success": True,
-                    "data": {
-                        "contacts": final_contacts,
-                        "total": len(final_contacts),
-                        "has_new_data": False,
-                        "refresh_mode": "db_only"
-                    }
-                }
+            # 3. 按wxautox顺序对合并结果进行排序
+            # 如果有wxautox顺序数据，使用它排序，否则按更新时间排序
+            if wxautox_order:
+                db_contacts = self._sort_contacts_by_wxautox_order(db_contacts, wxautox_order)
+                
+            # 分类为好友和群组
+            friends = [contact for contact in db_contacts if contact["type"] == "friend"]
+            groups = [contact for contact in db_contacts if contact["type"] == "group"]
+            
+            logger.info(f"处理后: {len(friends)} 个好友, {len(groups)} 个群组")
+            
+            # 返回最终结果
+            return {
+                "success": True,
+                "data": {
+                    "contacts": db_contacts,
+                    "friends": friends,
+                    "groups": groups,
+                    "total": len(db_contacts)
+                },
+                "message": f"成功获取 {len(db_contacts)} 个联系人 ({len(friends)} 个好友, {len(groups)} 个群组)"
+            }
         except Exception as e:
             logger.error(f"获取联系人列表失败: {e}")
+            logger.error(traceback.format_exc())
             return {"success": False, "message": str(e)}
 
     def _sort_contacts_by_wxautox_order(self, contacts: List[Dict[str, Any]], wxautox_order: List[str]) -> List[Dict[str, Any]]:
-        """按照wxautox返回的顺序对联系人进行排序，确保老林AI在第一位"""
+        """按照wxautox返回的顺序对联系人进行排序，确保老林AI在第一位，wxautox_fresh来源优先"""
+        if not contacts:
+            return []
+            
+        # 先按来源分组
+        wxautox_fresh_contacts = []  # wxautox_fresh来源的联系人
+        other_contacts = []  # 其他来源的联系人
+        
+        for contact in contacts:
+            if contact.get("source") == "wxautox_fresh":
+                wxautox_fresh_contacts.append(contact)
+            else:
+                other_contacts.append(contact)
+                
+        logger.info(f"排序前: {len(wxautox_fresh_contacts)} 个wxautox_fresh联系人, {len(other_contacts)} 个其他联系人")
+        
         if not wxautox_order:
-            # 如果没有wxautox顺序，只确保老林AI在第一位
+            # 如果没有wxautox顺序，只确保老林AI在第一位，wxautox_fresh在前
             lao_lin_contact = None
-            other_contacts = []
+            sorted_wxautox_fresh = []
+            sorted_other = []
 
-            for contact in contacts:
+            # 从wxautox_fresh中找出老林AI
+            for contact in wxautox_fresh_contacts:
                 if contact["name"] == "老林AI":
                     lao_lin_contact = contact
                 else:
-                    other_contacts.append(contact)
-
-            if lao_lin_contact:
-                return [lao_lin_contact] + other_contacts
+                    sorted_wxautox_fresh.append(contact)
+            
+            # 从其他联系人中找出老林AI
+            if not lao_lin_contact:
+                for contact in other_contacts:
+                    if contact["name"] == "老林AI":
+                        lao_lin_contact = contact
+                    else:
+                        sorted_other.append(contact)
             else:
-                return other_contacts
+                sorted_other = other_contacts
 
-        # 创建名称到联系人的映射
-        contact_map = {contact["name"]: contact for contact in contacts}
-
+            # 组合结果：老林AI > wxautox_fresh > 其他
+            if lao_lin_contact:
+                return [lao_lin_contact] + sorted_wxautox_fresh + sorted_other
+            else:
+                return sorted_wxautox_fresh + sorted_other
+        
+        # 创建名称到联系人的映射（分别为wxautox_fresh和其他来源）
+        wxautox_fresh_map = {contact["name"]: contact for contact in wxautox_fresh_contacts}
+        other_map = {contact["name"]: contact for contact in other_contacts}
+        
         # 按wxautox顺序排序
         sorted_contacts = []
         used_names = set()
-
-        # 首先按wxautox顺序添加联系人
+        
+        # 1. 首先按wxautox顺序添加wxautox_fresh来源的联系人
         for name in wxautox_order:
-            if name in contact_map:
-                sorted_contacts.append(contact_map[name])
+            if name in wxautox_fresh_map:
+                sorted_contacts.append(wxautox_fresh_map[name])
                 used_names.add(name)
-
-        # 然后添加数据库中有但wxautox中没有的联系人
-        for contact in contacts:
+        
+        # 2. 然后按wxautox顺序添加其他来源的联系人（如果名称未被使用）
+        for name in wxautox_order:
+            if name not in used_names and name in other_map:
+                sorted_contacts.append(other_map[name])
+                used_names.add(name)
+                
+        # 3. 添加剩余的wxautox_fresh联系人（不在wxautox_order中的）
+        for contact in wxautox_fresh_contacts:
             if contact["name"] not in used_names:
                 sorted_contacts.append(contact)
+                used_names.add(contact["name"])
+                
+        # 4. 添加剩余的其他联系人
+        for contact in other_contacts:
+            if contact["name"] not in used_names:
+                sorted_contacts.append(contact)
+                used_names.add(contact["name"])
 
         # 确保老林AI在第一位
         lao_lin_contact = None
-        other_contacts = []
+        other_sorted_contacts = []
 
         for contact in sorted_contacts:
             if contact["name"] == "老林AI":
                 lao_lin_contact = contact
             else:
-                other_contacts.append(contact)
+                other_sorted_contacts.append(contact)
 
         if lao_lin_contact:
-            final_contacts = [lao_lin_contact] + other_contacts
+            final_contacts = [lao_lin_contact] + other_sorted_contacts
         else:
-            final_contacts = other_contacts
+            final_contacts = other_sorted_contacts
+            
+        logger.info(f"排序后: 共 {len(final_contacts)} 个联系人，老林AI是否在首位: {lao_lin_contact is not None}")
 
         return final_contacts
 

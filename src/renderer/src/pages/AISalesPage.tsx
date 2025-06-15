@@ -503,68 +503,95 @@ const AISalesPage: React.FC = () => {
   }
 
   // API调用函数实现
-  const loadContacts = useCallback(async () => {
-    // 如果已经加载过联系人数据，直接返回
-    if (contactsLoaded && contacts.friends.length > 0) {
-      console.log('📱 使用缓存的联系人数据')
-      return
-    }
-
-    try {
-      setLoading(true)
-      message.loading('正在获取联系人...', 0)
-
-      console.log('🔄 开始获取联系人...')
-
-      // 直接使用后端的合并结果（包含wxautox最新数据 + 数据库去重数据）
-      console.log('📖 获取合并后的联系人数据...')
-      const mergedContactsResult = await wxAutoAPI.getContactsFromDb()
-      let allContacts: Contact[] = []
-      if (mergedContactsResult.success && mergedContactsResult.data?.contacts) {
-        allContacts = mergedContactsResult.data.contacts.map((contact: any) => ({
-          id: contact.id,
-          name: contact.name,
-          type: contact.type || 'friend',
-          remark: contact.remark || '',
-          avatar: contact.avatar || '',
-          source: contact.source || 'merged',
-          is_monitoring: contact.is_monitoring
-        }))
-        console.log(`📊 获取到合并后的 ${allContacts.length} 个联系人`)
-
-        // 显示数据来源统计
-        const wxautoxCount = allContacts.filter((c) => c.source === 'wxautox_fresh').length
-        const dbCount = allContacts.filter((c) => c.source !== 'wxautox_fresh').length
-        console.log(`📊 数据来源: ${wxautoxCount} 个来自wxautox, ${dbCount} 个来自数据库`)
+  const loadContacts = useCallback(
+    async (forceRefresh = false) => {
+      // 如果已经加载过联系人数据且不是强制刷新，直接返回
+      if (contactsLoaded && contacts.friends.length > 0 && !forceRefresh) {
+        console.log('📱 使用缓存的联系人数据')
+        return
       }
 
-      // 直接使用后端合并的结果，分离好友和群组（保持后端排序，不重新排序）
-      const mergedFriends = allContacts.filter((contact) => contact.type === 'friend')
-      const groups = allContacts.filter((contact) => contact.type === 'group')
+      try {
+        setLoading(true)
+        message.loading('正在获取联系人...', 0)
 
-      // 更新状态
-      setContacts({
-        friends: mergedFriends,
-        groups: groups
-      })
-      setContactsLoaded(true) // 标记联系人已加载
+        console.log('🔄 开始获取联系人...')
 
-      message.destroy()
+        let allContacts: Contact[] = []
 
-      // 显示详细的成功信息
-      const totalContacts = mergedFriends.length + groups.length
-      message.success(
-        `✅ 联系人加载成功！共 ${totalContacts} 个联系人（${mergedFriends.length} 个好友，${groups.length} 个群组）`
-      )
-      console.log(`🎉 联系人加载成功: ${mergedFriends.length} 个好友, ${groups.length} 个群组`)
-    } catch (error) {
-      console.error('❌ 加载联系人失败:', error)
-      message.destroy()
-      message.error('加载联系人失败')
-    } finally {
-      setLoading(false)
-    }
-  }, [contactsLoaded, contacts.friends.length, message])
+        // 如果是强制刷新，直接调用get_contacts获取最新数据
+        if (forceRefresh) {
+          console.log('🔄 强制刷新：直接从wxautox获取最新联系人...')
+          const freshContactsResult = await wxAutoAPI.getContacts()
+
+          if (freshContactsResult.success && freshContactsResult.data?.contacts) {
+            allContacts = freshContactsResult.data.contacts.map((contact: any) => ({
+              id: contact.id,
+              name: contact.name,
+              type: contact.type || 'friend',
+              remark: contact.remark || '',
+              avatar: contact.avatar || '',
+              source: contact.source || 'wxautox',
+              is_monitoring: false // 默认未监听
+            }))
+            console.log(`📊 从wxautox获取到 ${allContacts.length} 个联系人`)
+          }
+        }
+        // 否则使用后端的合并结果（包含wxautox最新数据 + 数据库去重数据）
+        else {
+          console.log('📖 获取合并后的联系人数据...')
+          const mergedContactsResult = await wxAutoAPI.getContactsFromDb()
+
+          if (mergedContactsResult.success && mergedContactsResult.data?.contacts) {
+            allContacts = mergedContactsResult.data.contacts.map((contact: any) => ({
+              id: contact.id,
+              name: contact.name,
+              type: contact.type || 'friend',
+              remark: contact.remark || '',
+              avatar: contact.avatar || '',
+              source: contact.source || 'merged',
+              is_monitoring: contact.is_monitoring
+            }))
+            console.log(`📊 获取到合并后的 ${allContacts.length} 个联系人`)
+
+            // 显示数据来源统计
+            const wxautoxCount = allContacts.filter((c) => c.source === 'wxautox_fresh').length
+            const dbCount = allContacts.filter((c) => c.source !== 'wxautox_fresh').length
+            console.log(`📊 数据来源: ${wxautoxCount} 个来自wxautox, ${dbCount} 个来自数据库`)
+          }
+        }
+
+        // 分离好友和群组（保持后端排序，不重新排序）
+        const mergedFriends = allContacts.filter((contact) => contact.type === 'friend')
+        const groups = allContacts.filter((contact) => contact.type === 'group')
+
+        // 更新状态
+        setContacts({
+          friends: mergedFriends,
+          groups: groups
+        })
+        setContactsLoaded(true) // 标记联系人已加载
+
+        message.destroy()
+
+        // 显示详细的成功信息
+        const totalContacts = mergedFriends.length + groups.length
+        message.success(
+          `✅ 联系人${forceRefresh ? '刷新' : '加载'}成功！共 ${totalContacts} 个联系人（${mergedFriends.length} 个好友，${groups.length} 个群组）`
+        )
+        console.log(
+          `🎉 联系人${forceRefresh ? '刷新' : '加载'}成功: ${mergedFriends.length} 个好友, ${groups.length} 个群组`
+        )
+      } catch (error) {
+        console.error('❌ 加载联系人失败:', error)
+        message.destroy()
+        message.error('加载联系人失败')
+      } finally {
+        setLoading(false)
+      }
+    },
+    [contactsLoaded, contacts.friends.length, message]
+  )
 
   const loadGroups = useCallback(async () => {
     try {
@@ -1364,9 +1391,9 @@ const AISalesPage: React.FC = () => {
                 <Button
                   size="small"
                   icon={<ReloadOutlined />}
-                  onClick={loadContacts}
+                  onClick={() => loadContacts(true)}
                   loading={loading}
-                  title="重新获取联系人">
+                  title="从微信获取最新联系人">
                   刷新
                 </Button>
               </div>
@@ -1537,6 +1564,15 @@ const AISalesPage: React.FC = () => {
                       icon={<ReloadOutlined />}
                       onClick={() => refreshMessagesFromDatabase(selectedContact.name)}>
                       刷新消息
+                    </Button>
+
+                    <Button
+                      size="small"
+                      type="primary"
+                      icon={<ReloadOutlined />}
+                      onClick={() => loadContacts(true)}
+                      loading={loading}>
+                      刷新联系人列表
                     </Button>
 
                     <Button
