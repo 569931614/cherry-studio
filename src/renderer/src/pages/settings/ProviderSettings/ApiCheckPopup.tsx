@@ -144,6 +144,9 @@ const PopupContainer: React.FC<Props> = ({ title, provider, model, apiKeys, type
       transitionName="animation-move-down"
       centered
       maskClosable={false}
+      zIndex={10002} // 设置更高的 z-index，确保在 TopView 遮罩之上
+      getContainer={false} // 不使用 Portal，直接在当前容器中渲染
+      mask={false} // 禁用 Modal 自带的遮罩，使用 TopView 的遮罩
       footer={
         <Space style={{ display: 'flex', justifyContent: 'space-between' }}>
           <Space>
@@ -160,7 +163,8 @@ const PopupContainer: React.FC<Props> = ({ title, provider, model, apiKeys, type
             </Button>
           </Space>
         </Space>
-      }>
+      }
+    >
       <Scrollbar style={{ maxHeight: '70vh', overflowX: 'hidden' }}>
         <List
           dataSource={keyStatuses}

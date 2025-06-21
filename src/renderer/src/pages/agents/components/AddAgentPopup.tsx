@@ -152,7 +152,11 @@ const PopupContainer: React.FC<Props> = ({ resolve }) => {
       okText={t('agents.add.title')}
       width={800}
       transitionName="animation-move-down"
-      centered>
+      centered
+      zIndex={10002} // 设置更高的 z-index，确保在 TopView 遮罩之上
+      getContainer={false} // 不使用 Portal，直接在当前容器中渲染
+      mask={false} // 禁用 Modal 自带的遮罩，使用 TopView 的遮罩
+    >
       <Form
         ref={formRef}
         form={form}

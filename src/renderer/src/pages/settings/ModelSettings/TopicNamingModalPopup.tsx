@@ -48,7 +48,11 @@ const PopupContainer: React.FC<Props> = ({ resolve }) => {
       afterClose={onClose}
       transitionName="animation-move-down"
       footer={null}
-      centered>
+      centered
+      zIndex={10002} // 设置更高的 z-index，确保在 TopView 遮罩之上
+      getContainer={false} // 不使用 Portal，直接在当前容器中渲染
+      mask={false} // 禁用 Modal 自带的遮罩，使用 TopView 的遮罩
+    >
       <Divider style={{ margin: '10px 0' }} />
       <HStack style={{ gap: 10, marginBottom: 20, marginTop: 20 }} alignItems="center">
         <div>{t('settings.models.enable_topic_naming')}</div>

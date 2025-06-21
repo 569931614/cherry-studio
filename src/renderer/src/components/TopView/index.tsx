@@ -65,12 +65,49 @@ const TopViewContainer: React.FC<Props> = ({ children }) => {
 
   const FullScreenContainer: React.FC<PropsWithChildren> = useCallback(({ children }) => {
     return (
-      <Box flex={1} position="absolute" w="100%" h="100%" className="topview-fullscreen-container">
-        <Box position="absolute" w="100%" h="100%" onClick={onPop} />
-        {children}
+      <Box
+        position="fixed"
+        w="100%"
+        h="100%"
+        className="topview-fullscreen-container"
+        style={{
+          zIndex: 9998, // 容器基础层级
+          top: 0,
+          left: 0,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center'
+        }}
+      >
+        {/* 背景遮罩层 */}
+        <Box
+          position="absolute"
+          w="100%"
+          h="100%"
+          style={{
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            zIndex: 9999 // 遮罩层级
+          }}
+          onClick={(e) => {
+            // 检查是否是激活弹窗，如果是则不允许关闭
+            const isActivationPopup = elementsRef.current.some(el => el.id === 'ActivationPopup')
+            if (isActivationPopup) {
+              e.preventDefault()
+              e.stopPropagation()
+              return
+            }
+            onPop()
+          }}
+        />
+        {/* 弹窗内容层 */}
+        <Box style={{ zIndex: 10003, position: 'relative' }}>
+          {children}
+        </Box>
       </Box>
     )
   }, [])
+
+
 
   return (
     <>

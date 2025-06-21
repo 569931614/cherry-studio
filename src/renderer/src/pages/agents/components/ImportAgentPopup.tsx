@@ -100,7 +100,11 @@ const PopupContainer: React.FC<Props> = ({ resolve }) => {
       onCancel={onCancel}
       footer={null}
       transitionName="animation-move-down"
-      centered>
+      centered
+      zIndex={10002} // 设置更高的 z-index，确保在 TopView 遮罩之上
+      getContainer={false} // 不使用 Portal，直接在当前容器中渲染
+      mask={false} // 禁用 Modal 自带的遮罩，使用 TopView 的遮罩
+    >
       <Form form={form} onFinish={onFinish} layout="vertical">
         <Form.Item>
           <Radio.Group value={importType} onChange={(e) => setImportType(e.target.value)}>
